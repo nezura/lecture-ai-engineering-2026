@@ -3,6 +3,7 @@
 APIキーやモデル名はコードに書かず、環境変数から読み込む。
 """
 
+import math
 import os
 
 # 既定モデル。環境変数 AIE_MODEL を設定すると切り替えられる。
@@ -34,3 +35,21 @@ def get_api_key() -> str:
             "   （左下の「Codespaces」→「Stop Current Codespace」→ 再度開く）"
         )
     return key
+
+
+def get_temperature() -> float | None:
+    """環境変数 AIE_TEMPERATURE を返す。未設定ならモデルの既定値を使う。"""
+    value = os.getenv("AIE_TEMPERATURE")
+    if value is None:
+        return None
+
+    try:
+        temperature = float(value)
+    except ValueError:
+        raise SystemExit(
+            "環境変数 AIE_TEMPERATURE は 0 以上の有限数値で指定してください。"
+        ) from None
+
+    if not math.isfinite(temperature) or temperature < 0:
+        raise SystemExit("環境変数 AIE_TEMPERATURE は 0 以上の有限数値で指定してください。")
+    return temperature
